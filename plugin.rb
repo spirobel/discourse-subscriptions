@@ -64,16 +64,16 @@ load File.expand_path("app/controllers/concerns/group.rb", __dir__)
 after_initialize do
   module ::StripeDiscourseSubscriptions
     class Engine < ::Rails::Engine
-      engine_name 'stripe-discourse-subscriptions'
+      engine_name "stripe-discourse-subscriptions"
       isolate_namespace StripeDiscourseSubscriptions
     end
   end
-  StripeDiscourseSubscriptions::Engine.routes.draw do
-    get "/" => "pricingtable#index"
-  end
+  StripeDiscourseSubscriptions::Engine.routes.draw { get "/" => "pricingtable#index" }
   require_relative "app/controllers/discourse_subscriptions/pricingtable_controller.rb"
 
-  Discourse::Application.routes.append { mount ::StripeDiscourseSubscriptions::Engine, at: "subscriptions" }
+  Discourse::Application.routes.append do
+    mount ::StripeDiscourseSubscriptions::Engine, at: "subscriptions"
+  end
 
   ::Stripe.api_version = "2020-08-27"
 
