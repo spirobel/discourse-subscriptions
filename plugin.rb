@@ -62,17 +62,8 @@ load File.expand_path("app/controllers/concerns/stripe.rb", __dir__)
 load File.expand_path("app/controllers/concerns/group.rb", __dir__)
 
 after_initialize do
-  module ::StripeDiscourseSubscriptions
-    class Engine < ::Rails::Engine
-      engine_name "stripe-discourse-subscriptions"
-      isolate_namespace StripeDiscourseSubscriptions
-    end
-  end
-  StripeDiscourseSubscriptions::Engine.routes.draw { get "/" => "pricingtable#index" }
-  require_relative "app/controllers/discourse_subscriptions/pricingtable_controller.rb"
-
   Discourse::Application.routes.append do
-    mount ::StripeDiscourseSubscriptions::Engine, at: "subscriptions"
+    mount ::DiscourseSubscriptions::Engine, at: "subscriptions"
   end
 
   ::Stripe.api_version = "2020-08-27"
@@ -82,8 +73,6 @@ after_initialize do
     version: "2.8.1",
     url: "https://github.com/discourse/discourse-subscriptions",
   )
-
-  Discourse::Application.routes.append { mount ::DiscourseSubscriptions::Engine, at: "s" }
 
   add_to_serializer(:site, :show_campaign_banner) do
     begin
