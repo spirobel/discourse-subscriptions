@@ -71,56 +71,6 @@ module DiscourseSubscriptions
         SiteSetting.discourse_subscriptions_secret_key = "secret-key"
       end
 
-      describe "#index" do
-        it "gets products" do
-          ::Stripe::Product
-            .expects(:list)
-            .with({ ids: product_ids, active: true })
-            .returns(data: [product])
-
-          get "/s.json"
-
-          expect(response.parsed_body).to eq(
-            [
-              {
-                "id" => "prodct_23456",
-                "name" => "Very Special Product",
-                "description" =>
-                  PrettyText.cook(
-                    "Many people listened to my phone call with the Ukrainian President while it was being made",
-                  ),
-                "subscribed" => false,
-                "repurchaseable" => false,
-              },
-            ],
-          )
-        end
-
-        it "is subscribed" do
-          Fabricate(:customer, product_id: product[:id], user_id: user.id, customer_id: "x")
-          ::Stripe::Product
-            .expects(:list)
-            .with({ ids: product_ids, active: true })
-            .returns(data: [product])
-
-          get "/s.json"
-          data = response.parsed_body
-          expect(data.first["subscribed"]).to eq true
-        end
-
-        it "is not subscribed" do
-          ::DiscourseSubscriptions::Customer.delete_all
-          ::Stripe::Product
-            .expects(:list)
-            .with({ ids: product_ids, active: true })
-            .returns(data: [product])
-
-          get "/s.json"
-          data = response.parsed_body
-          expect(data.first["subscribed"]).to eq false
-        end
-      end
-
       describe "#get_contributors" do
         before do
           Fabricate(:product, external_id: "prod_campaign")
@@ -135,7 +85,7 @@ module DiscourseSubscriptions
         context "when not showing contributors" do
           it "returns nothing if not set to show contributors" do
             SiteSetting.discourse_subscriptions_campaign_show_contributors = false
-            get "/s/contributors.json"
+            get "/subscriptions/contributors.json"
 
             data = response.parsed_body
             expect(data).to be_empty
@@ -148,7 +98,7 @@ module DiscourseSubscriptions
           it "filters users by campaign product if set" do
             SiteSetting.discourse_subscriptions_campaign_product = "prod_campaign"
 
-            get "/s/contributors.json"
+            get "/subscriptions/contributors.json"
 
             data = response.parsed_body
             expect(data.first["id"]).to eq campaign_user.id
@@ -158,7 +108,7 @@ module DiscourseSubscriptions
           it "shows all purchases if campaign product not set" do
             SiteSetting.discourse_subscriptions_campaign_product = nil
 
-            get "/s/contributors.json"
+            get "/subscriptions/contributors.json"
 
             data = response.parsed_body
             expect(data.length).to eq 2
@@ -173,7 +123,7 @@ module DiscourseSubscriptions
             .expects(:list)
             .with(active: true, product: "prod_walterwhite")
             .returns(prices)
-          get "/s/prod_walterwhite.json"
+          get "/subscriptions/prod_walterwhite.json"
 
           expect(response.parsed_body).to eq(
             {
@@ -225,7 +175,7 @@ module DiscourseSubscriptions
           ::Stripe::Customer.expects(:create).never
           ::Stripe::Price.expects(:retrieve).never
           ::Stripe::Subscription.expects(:create).never
-          post "/s/create.json", params: { plan: "plan_1234", source: "tok_1234" }
+          post "/subscriptions/create.json", params: { plan: "plan_1234", source: "tok_1234" }
         end
       end
 
@@ -260,7 +210,7 @@ module DiscourseSubscriptions
               .returns(status: "active", customer: "cus_1234")
 
             expect {
-              post "/s/create.json", params: { plan: "plan_1234", source: "tok_1234" }
+              post "/subscriptions/create.json", params: { plan: "plan_1234", source: "tok_1234" }
             }.to change { DiscourseSubscriptions::Customer.count }
           end
 
@@ -294,7 +244,7 @@ module DiscourseSubscriptions
             ::Stripe::Invoice.expects(:pay).returns(status: "paid", customer: "cus_1234")
 
             expect {
-              post "/s/create.json", params: { plan: "plan_1234", source: "tok_1234" }
+              post "/subscriptions/create.json", params: { plan: "plan_1234", source: "tok_1234" }
             }.to change { DiscourseSubscriptions::Customer.count }
           end
 
@@ -303,13 +253,13 @@ module DiscourseSubscriptions
             ::Stripe::Subscription.expects(:create).returns(status: "active", customer: "cus_1234")
 
             expect {
-              post "/s/create.json", params: { plan: "plan_1234", source: "tok_1234" }
+              post "/subscriptions/create.json", params: { plan: "plan_1234", source: "tok_1234" }
             }.to change { DiscourseSubscriptions::Customer.count }
 
             ::Stripe::Customer.expects(:retrieve).with("cus_1234")
 
             expect {
-              post "/s/create.json", params: { plan: "plan_5678", source: "tok_5678" }
+              post "/subscriptions/create.json", params: { plan: "plan_5678", source: "tok_5678" }
             }.not_to change { DiscourseSubscriptions::Customer.count }
           end
 
@@ -321,7 +271,7 @@ module DiscourseSubscriptions
                 customer: "cus_1234",
               )
               expect {
-                post "/s/create.json",
+                post "/subscriptions/create.json",
                      params: {
                        plan: "plan_1234",
                        source: "tok_1234",
@@ -352,7 +302,7 @@ module DiscourseSubscriptions
 
                 ::Stripe::PromotionCode.expects(:list).with({ code: "invalid" }).returns(data: [])
 
-                post "/s/create.json",
+                post "/subscriptions/create.json",
                      params: {
                        plan: "plan_1234",
                        source: "tok_1234",
@@ -397,7 +347,7 @@ module DiscourseSubscriptions
                   .returns(status: "active", customer: "cus_1234")
 
                 expect {
-                  post "/s/create.json",
+                  post "/subscriptions/create.json",
                        params: {
                          plan: "plan_1234",
                          source: "tok_1234",
@@ -440,7 +390,7 @@ module DiscourseSubscriptions
                 ::Stripe::Invoice.expects(:pay).returns(status: "paid", customer: "cus_1234")
 
                 expect {
-                  post "/s/create.json",
+                  post "/subscriptions/create.json",
                        params: {
                          plan: "plan_1234",
                          source: "tok_1234",
@@ -468,7 +418,11 @@ module DiscourseSubscriptions
               )
 
               expect {
-                post "/s/finalize.json", params: { plan: "plan_1234", transaction: "sub_1234" }
+                post "/subscriptions/finalize.json",
+                     params: {
+                       plan: "plan_1234",
+                       transaction: "sub_1234",
+                     }
               }.to change { DiscourseSubscriptions::Customer.count }
             end
           end
@@ -488,7 +442,11 @@ module DiscourseSubscriptions
               )
 
               expect {
-                post "/s/finalize.json", params: { plan: "plan_1234", transaction: "in_1234" }
+                post "/subscriptions/finalize.json",
+                     params: {
+                       plan: "plan_1234",
+                       transaction: "in_1234",
+                     }
               }.to change { DiscourseSubscriptions::Customer.count }
             end
           end
@@ -511,7 +469,7 @@ module DiscourseSubscriptions
                   group_name: "admins",
                 },
               )
-              post "/s/create.json", params: { plan: "plan_1234", source: "tok_1234" }
+              post "/subscriptions/create.json", params: { plan: "plan_1234", source: "tok_1234" }
               expect(user.admin).to eq false
             end
 
@@ -522,7 +480,7 @@ module DiscourseSubscriptions
                   group_name: "other",
                 },
               )
-              post "/s/create.json", params: { plan: "plan_1234", source: "tok_1234" }
+              post "/subscriptions/create.json", params: { plan: "plan_1234", source: "tok_1234" }
               expect(user.groups).to be_empty
             end
           end
@@ -542,7 +500,7 @@ module DiscourseSubscriptions
               ::Stripe::Subscription.expects(:create).returns(status: "failed")
 
               expect {
-                post "/s/create.json", params: { plan: "plan_1234", source: "tok_1234" }
+                post "/subscriptions/create.json", params: { plan: "plan_1234", source: "tok_1234" }
               }.not_to change { group.users.count }
 
               expect(user.groups).to be_empty
@@ -552,7 +510,7 @@ module DiscourseSubscriptions
               ::Stripe::Subscription.expects(:create).returns(status: "active")
 
               expect {
-                post "/s/create.json", params: { plan: "plan_1234", source: "tok_1234" }
+                post "/subscriptions/create.json", params: { plan: "plan_1234", source: "tok_1234" }
               }.to change { group.users.count }
 
               expect(user.groups).not_to be_empty
@@ -562,7 +520,7 @@ module DiscourseSubscriptions
               ::Stripe::Subscription.expects(:create).returns(status: "trialing")
 
               expect {
-                post "/s/create.json", params: { plan: "plan_1234", source: "tok_1234" }
+                post "/subscriptions/create.json", params: { plan: "plan_1234", source: "tok_1234" }
               }.to change { group.users.count }
 
               expect(user.groups).not_to be_empty

@@ -13,7 +13,7 @@ module DiscourseSubscriptions
     end
 
     it "is ok" do
-      get "/s/admin.json"
+      get "/subscriptions/admin.json"
       expect(response.status).to eq(200)
     end
   end

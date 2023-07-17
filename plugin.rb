@@ -21,6 +21,9 @@ register_svg_icon "far-credit-card" if respond_to?(:register_svg_icon)
 register_html_builder("server:before-head-close") do
   "<script src='https://js.stripe.com/v3/'></script>"
 end
+register_html_builder("server:before-head-close") do
+  '<script async src="https://js.stripe.com/v3/pricing-table.js"></script>'
+end
 
 extend_content_security_policy(script_src: %w[https://js.stripe.com/v3/ https://hooks.stripe.com])
 
@@ -59,6 +62,10 @@ load File.expand_path("app/controllers/concerns/stripe.rb", __dir__)
 load File.expand_path("app/controllers/concerns/group.rb", __dir__)
 
 after_initialize do
+  Discourse::Application.routes.append do
+    mount ::DiscourseSubscriptions::Engine, at: "subscriptions"
+  end
+
   ::Stripe.api_version = "2020-08-27"
 
   ::Stripe.set_app_info(
@@ -66,8 +73,6 @@ after_initialize do
     version: "2.8.1",
     url: "https://github.com/discourse/discourse-subscriptions",
   )
-
-  Discourse::Application.routes.append { mount ::DiscourseSubscriptions::Engine, at: "s" }
 
   add_to_serializer(:site, :show_campaign_banner) do
     begin
