@@ -15,7 +15,7 @@ module DiscourseSubscriptions
         .with("we-want-a-shrubbery", "stripe-webhook-signature", "zascharoo")
         .returns(type: "something")
 
-      post "/s/hooks.json", params: payload, headers: headers
+      post "/subscriptions/hooks.json", params: payload, headers: headers
 
       expect(response.status).to eq 200
     end
@@ -49,7 +49,7 @@ module DiscourseSubscriptions
         end
 
         it "is successfull" do
-          post "/s/hooks.json"
+          post "/subscriptions/hooks.json"
           expect(response.status).to eq 200
         end
 
@@ -58,7 +58,7 @@ module DiscourseSubscriptions
             event_data[:object][:status] = "incomplete"
             event_data[:previous_attributes] = { status: "incomplete" }
 
-            expect { post "/s/hooks.json" }.not_to change { user.groups.count }
+            expect { post "/subscriptions/hooks.json" }.not_to change { user.groups.count }
 
             expect(response.status).to eq 200
           end
@@ -67,7 +67,7 @@ module DiscourseSubscriptions
             event_data[:object][:status] = "incomplete"
             event_data[:previous_attributes] = { status: "something-else" }
 
-            expect { post "/s/hooks.json" }.not_to change { user.groups.count }
+            expect { post "/subscriptions/hooks.json" }.not_to change { user.groups.count }
 
             expect(response.status).to eq 200
           end
@@ -76,7 +76,7 @@ module DiscourseSubscriptions
             event_data[:object][:status] = "complete"
             event_data[:previous_attributes] = { status: "incomplete" }
 
-            expect { post "/s/hooks.json" }.to change { user.groups.count }.by(1)
+            expect { post "/subscriptions/hooks.json" }.to change { user.groups.count }.by(1)
 
             expect(response.status).to eq 200
           end
@@ -93,15 +93,15 @@ module DiscourseSubscriptions
         end
 
         it "deletes the customer" do
-          expect { post "/s/hooks.json" }.to change { DiscourseSubscriptions::Customer.count }.by(
-            -1,
-          )
+          expect { post "/subscriptions/hooks.json" }.to change {
+            DiscourseSubscriptions::Customer.count
+          }.by(-1)
 
           expect(response.status).to eq 200
         end
 
         it "removes the user from the group" do
-          expect { post "/s/hooks.json" }.to change { user.groups.count }.by(-1)
+          expect { post "/subscriptions/hooks.json" }.to change { user.groups.count }.by(-1)
 
           expect(response.status).to eq 200
         end
