@@ -9,7 +9,7 @@
 
 enabled_site_setting :discourse_subscriptions_enabled
 
-gem "stripe", "5.29.0"
+gem "stripe", "8.6.0"
 
 register_asset "stylesheets/common/main.scss"
 register_asset "stylesheets/common/layout.scss"
@@ -27,7 +27,7 @@ end
 
 extend_content_security_policy(script_src: %w[https://js.stripe.com/v3/ https://hooks.stripe.com])
 
-add_admin_route "discourse_subscriptions.admin_navigation", "discourse-subscriptions.products"
+add_admin_route "discourse_subscriptions.admin_navigation", "discourse-subscriptions.plans"
 
 Discourse::Application.routes.append do
   get "/admin/plugins/discourse-subscriptions" => "admin/plugins#index",
@@ -66,7 +66,7 @@ after_initialize do
     mount ::DiscourseSubscriptions::Engine, at: "subscriptions"
   end
 
-  ::Stripe.api_version = "2020-08-27"
+  ::Stripe.api_version = "2022-11-15"
 
   ::Stripe.set_app_info(
     "Discourse Subscriptions",
