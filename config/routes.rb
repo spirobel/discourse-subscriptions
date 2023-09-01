@@ -10,7 +10,7 @@ DiscourseSubscriptions::Engine.routes.draw do
 
   namespace :admin, constraints: AdminConstraint.new do
     resources :plans
-    resources :subscriptions, only: %i[index destroy]
+    resources :subscriptions, only: %i[index destroy update]
     resources :products
     resources :coupons, only: %i[index create]
     resource :coupons, only: %i[destroy update]
@@ -18,7 +18,9 @@ DiscourseSubscriptions::Engine.routes.draw do
 
   namespace :user do
     resources :payments, only: [:index]
-    resources :subscriptions, only: %i[index update destroy]
+    resources :subscriptions, only: %i[index update destroy] do
+      collection { post "portalsession", to: "subscriptions#portalsession" }
+    end
   end
 
   get "/" => "subscribe#index"
