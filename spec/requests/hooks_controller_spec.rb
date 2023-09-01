@@ -26,10 +26,17 @@ module DiscourseSubscriptions
         Fabricate(:customer, customer_id: "c_575768", product_id: "p_8654", user_id: user.id)
       end
       let(:group) { Fabricate(:group, name: "subscribers-group") }
-
+      let(:subscription) do
+        Fabricate(
+          :subscription,
+          external_id: "sub_1NlDDsJf66lkiYVd1wzeq5zP",
+          customer_id: "c_575768",
+        )
+      end
       let(:event_data) do
         {
           object: {
+            id: "sub_1NlDDsJf66lkiYVd1wzeq5zP",
             customer: customer.customer_id,
             plan: {
               product: customer.product_id,
@@ -92,10 +99,10 @@ module DiscourseSubscriptions
           group.add(user)
         end
 
-        it "deletes the customer" do
+        it "marks subscription as ended" do
           expect { post "/subscriptions/hooks.json" }.to change {
-            DiscourseSubscriptions::Customer.count
-          }.by(-1)
+            DiscourseSubscriptions::Subscription.find(subscription.id).ended
+          }.to(true)
 
           expect(response.status).to eq 200
         end
