@@ -32,6 +32,7 @@ en:
         subscribe: Subscribe
         user_activity:
           payments: Payments
+      manage_subscriptions: manage subscriptions
       campaign:
         title: Support Us
         body: We need your help to keep this community up and running!
@@ -392,6 +393,8 @@ en:
       admin:
         unconfigured: 'Stripe is not configured correctly. Please see Discourse Meta for information.'
         on_meta: Discourse Subscriptions on Meta
+        stripe_dashboard_help: 'To create pricing tables, plans and products, please use the '
+        stripe_dashboard_link_text: 'stripe dashboard.'
         dashboard:
           title: Dashboard
           table:
@@ -400,6 +403,10 @@ en:
               payment_intent: Payment ID
               receipt_email: Receipt Email
               amount: Amount
+        customer:
+          select_user:
+            title: Assign Discourse User to Subscription Customer
+            description: Enter the username or email address of the person you'd like to assign to this subscription's customer.
         products:
           title: Products
           operations:
@@ -460,8 +467,8 @@ en:
           title: Subscriptions
           subscription:
             user: User
-            subscription_id: Subscription ID
-            customer: Customer
+            subscription_id: Stripe Subscription ID
+            customer: Stripe customer email 
             product: Product
             plan: Plan
             status: Status
