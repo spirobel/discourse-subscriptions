@@ -20,7 +20,7 @@ export default {
       if (user) {
         api.addQuickAccessProfileItem({
           icon: "far-credit-card",
-          href: `/u/${user.username}/billing/subscriptions`,
+          href: `/u/${user.username}/billing`,
           content: "Billing",
         });
 
