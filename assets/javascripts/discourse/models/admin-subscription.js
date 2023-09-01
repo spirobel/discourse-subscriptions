@@ -1,7 +1,6 @@
 import discourseComputed from "discourse-common/utils/decorators";
 import { ajax } from "discourse/lib/ajax";
 import EmberObject from "@ember/object";
-import getURL from "discourse-common/lib/get-url";
 
 const AdminSubscription = EmberObject.extend({
   @discourseComputed("status")
@@ -14,11 +13,6 @@ const AdminSubscription = EmberObject.extend({
     return metadata.user_id && metadata.username;
   },
 
-  @discourseComputed("metadata")
-  subscriptionUserPath(metadata) {
-    return getURL(`/admin/users/${metadata.user_id}/${metadata.username}`);
-  },
-
   destroy(refund) {
     const data = {
       refund,
@@ -28,11 +22,17 @@ const AdminSubscription = EmberObject.extend({
       data,
     }).then((result) => AdminSubscription.create(result));
   },
+  createInvite(user, custom_message) {
+    return ajax(`/subscriptions/admin/subscriptions/${this.id}`, {
+      type: "PATCH",
+      data: { user, custom_message },
+    });
+  },
 });
 
 AdminSubscription.reopenClass({
   find() {
-    return ajax("/s/admin/subscriptions", {
+    return ajax("/subscriptions/admin/subscriptions", {
       method: "get",
     }).then((result) => {
       if (result === null) {
@@ -45,9 +45,12 @@ AdminSubscription.reopenClass({
     });
   },
   loadMore(lastRecord) {
-    return ajax(`/s/admin/subscriptions?last_record=${lastRecord}`, {
-      method: "get",
-    }).then((result) => {
+    return ajax(
+      `/subscriptions/admin/subscriptions?last_record=${lastRecord}`,
+      {
+        method: "get",
+      }
+    ).then((result) => {
       result.data = result.data.map((subscription) =>
         AdminSubscription.create(subscription)
       );

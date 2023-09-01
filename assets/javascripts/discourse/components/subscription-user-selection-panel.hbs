@@ -1,0 +1,92 @@
+{{#if this.inviteModel.error}}
+  <div class="alert alert-error">
+    {{html-safe this.errorMessage}}
+  </div>
+{{/if}}
+
+<div class="body">
+  {{#if this.inviteModel.finished}}
+    <div class="success-message">
+      {{html-safe this.successMessage}}
+    </div>
+  {{else}}
+    <div class="invite-user-control">
+      <label class="instructions">{{i18n
+          "discourse_subscriptions.admin.customer.select_user.description"
+        }}</label>
+      <div class="invite-user-input-wrapper">
+        {{#if this.allowExistingMembers}}
+          <EmailGroupUserChooser
+            @class="invite-user-input"
+            @value={{this.invitee}}
+            @onChange={{action "updateInvitee"}}
+            @options={{hash
+              maximum=1
+              allowEmails=true
+              excludeCurrentUser=true
+              includeMessageableGroups=false
+              filterPlaceholder="topic.invite_private.email_or_username_placeholder"
+              fullWidthWrap=true
+            }}
+          />
+        {{else}}
+          <TextField
+            @class="email-or-username-input"
+            @value={{this.invitee}}
+            @placeholderKey="topic.invite_reply.email_placeholder"
+          />
+        {{/if}}
+        {{#if this.capabilities.hasContactPicker}}
+          <DButton
+            @icon="address-book"
+            @action={{action "searchContact"}}
+            @class="btn-primary open-contact-picker"
+          />
+        {{/if}}
+      </div>
+    </div>
+
+    {{#if this.showCustomMessage}}
+      <div class="show-custom-message-control">
+        <label class="instructions">
+          <DiscourseLinkedText
+            @class="optional"
+            @action={{action "showCustomMessageBox"}}
+            @text="invite.custom_message"
+          />
+        </label>
+        {{#if this.hasCustomMessage}}
+          <Textarea
+            @value={{this.customMessage}}
+            placeholder={{this.customMessagePlaceholder}}
+          />
+        {{/if}}
+      </div>
+    {{/if}}
+  {{/if}}
+
+  {{#if this.showApprovalMessage}}
+    <label class="instructions approval-notice">
+      {{i18n "invite.approval_not_required"}}
+    </label>
+  {{/if}}
+</div>
+
+<div class="footer">
+  {{#if this.inviteModel.finished}}
+    <DButton
+      @class="btn-primary"
+      @action={{action "sendCloseModal"}}
+      @label="close"
+    />
+  {{else}}
+    <DButton
+      @icon={{this.inviteIcon}}
+      @action={{action "createInvite"}}
+      @class="btn-primary send-invite"
+      @disabled={{this.disabled}}
+      @label={{this.buttonTitle}}
+    />
+
+  {{/if}}
+</div>

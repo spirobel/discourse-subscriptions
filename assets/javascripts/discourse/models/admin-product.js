@@ -51,7 +51,7 @@ AdminProduct.reopenClass({
   },
 
   find(id) {
-    return ajax(`/s/admin/products/${id}`, {
+    return ajax(`/subscriptions/admin/products/${id}`, {
       method: "get",
     }).then((product) => AdminProduct.create(product));
   },

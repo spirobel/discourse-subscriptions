@@ -7,13 +7,14 @@ module("discourse-patrons:model:plan", function () {
       unit_amount: "2399",
       currency: "aud",
       recurring: {
+        interval_count: 1,
         interval: "month",
       },
     });
 
     assert.strictEqual(
       plan.get("subscriptionRate"),
-      "23.99 AUD / month",
+      "23.99 AUD / 1 month",
       "it returns the formatted subscription rate"
     );
   });

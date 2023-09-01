@@ -73,13 +73,8 @@ module DiscourseSubscriptions
 
         describe "index" do
           it "lists the plans" do
-            ::Stripe::Price.expects(:list).with(nil)
+            ::Stripe::Price.expects(:list).with({ limit: 100 })
             get "/subscriptions/admin/plans.json"
-          end
-
-          it "lists the plans for the product" do
-            ::Stripe::Price.expects(:list).with({ product: "prod_id123" })
-            get "/subscriptions/admin/plans.json", params: { product_id: "prod_id123" }
           end
         end
 

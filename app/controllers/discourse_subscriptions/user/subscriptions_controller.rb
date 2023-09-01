@@ -59,21 +59,22 @@ module DiscourseSubscriptions
         end
       end
 
-      def update
-        params.require(:payment_method)
-
-        subscription = Subscription.where(external_id: params[:id]).first
-        begin
-          attach_method_to_customer(subscription.customer_id, params[:payment_method])
-          subscription =
-            ::Stripe::Subscription.update(
-              params[:id],
-              { default_payment_method: params[:payment_method] },
-            )
-          render json: success_json
-        rescue ::Stripe::InvalidRequestError
-          render_json_error I18n.t("discourse_subscriptions.card.invalid")
+      def portalsession
+        customers = Customer.where(user_id: current_user.id)
+        customers.each do |customer|
+          if customer.customer_id.start_with?("cus")
+            render_json_dump ::Stripe::BillingPortal::Session.create(
+                               {
+                                 customer: customer.customer_id,
+                                 return_url:
+                                   Discourse.base_url + "/u/" + current_user.username +
+                                     "/billing/subscriptions",
+                               },
+                             )
+            return
+          end
         end
+        render_json_dump({ no_subscriptions: true })
       end
 
       private

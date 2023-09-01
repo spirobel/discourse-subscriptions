@@ -97,17 +97,6 @@ module DiscourseSubscriptions
           )
         end
       end
-
-      describe "update" do
-        it "updates the payment method for subscription" do
-          ::Stripe::Subscription.expects(:update).once
-          ::Stripe::PaymentMethod.expects(:attach).once
-          put "/subscriptions/user/subscriptions/sub_1234.json",
-              params: {
-                payment_method: "pm_abc123abc",
-              }
-        end
-      end
     end
   end
 end

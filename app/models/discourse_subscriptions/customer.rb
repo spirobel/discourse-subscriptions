@@ -7,6 +7,8 @@ module DiscourseSubscriptions
     scope :find_user, ->(user) { find_by_user_id(user.id) }
 
     has_many :subscriptions
+    belongs_to :user, class_name: "::User", foreign_key: "user_id"
+    belongs_to :invite, class_name: "::Invite", foreign_key: "invite_id"
 
     def self.create_customer(user, customer)
       create(customer_id: customer[:id], user_id: user.id)

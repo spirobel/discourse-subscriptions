@@ -56,30 +56,26 @@
         {{#each model.data as |subscription|}}
           <tr>
             <td>
-              {{#if subscription.metadataUserExists}}
+              {{#if subscription.subscriptionUserPath}}
                 <a href={{subscription.subscriptionUserPath}}>
-                  {{subscription.metadata.username}}
+                  {{subscription.subscriptionLinkText}}
                 </a>
               {{/if}}
+              <FlatButton
+                @icon="pencil-alt"
+                @action={{action "editOrInviteUser" subscription}}
+              />
             </td>
             <td>{{subscription.id}}</td>
-            <td>{{subscription.customer}}</td>
+            <td>{{subscription.customer.email}}</td>
             <td>{{subscription.plan.product.name}}</td>
-            <td>{{subscription.plan.nickname}}</td>
+            <td>{{format-currency
+                subscription.plan.currency
+                subscription.plan.amount
+              }}
+              {{subscription.plan.interval}}</td>
             <td>{{subscription.status}}</td>
             <td class="td-right">{{format-unix-date subscription.created}}</td>
-            <td class="td-right">
-              {{#if subscription.loading}}
-                {{loading-spinner size="small"}}
-              {{else}}
-                <DButton
-                  @disabled={{subscription.canceled}}
-                  @label="cancel"
-                  @action={{action "showCancelModal" subscription}}
-                  @icon="times"
-                />
-              {{/if}}
-            </td>
           </tr>
         {{/each}}
       </tbody>
