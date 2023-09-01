@@ -20,14 +20,17 @@
     {{/if}}
   </div>
 
+  <div>
+    {{i18n "discourse_subscriptions.admin.stripe_dashboard_help"}}
+    <a href="https://stripe.com/dashboard">{{i18n
+        "discourse_subscriptions.admin.stripe_dashboard_link_text"
+      }}</a>
+  </div>
+
   <ul class="nav nav-pills">
     <NavItem
-      @route="adminPlugins.discourse-subscriptions.products"
-      @label="discourse_subscriptions.admin.products.title"
-    />
-    <NavItem
-      @route="adminPlugins.discourse-subscriptions.coupons"
-      @label="discourse_subscriptions.admin.coupons.title"
+      @route="adminPlugins.discourse-subscriptions.plans"
+      @label="discourse_subscriptions.admin.plans.title"
     />
     <NavItem
       @route="adminPlugins.discourse-subscriptions.subscriptions"

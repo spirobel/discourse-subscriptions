@@ -1,0 +1,49 @@
+{{#if model}}
+  <p>
+    <table class="table discourse-patrons-table">
+      <thead>
+        <th>{{i18n "discourse_subscriptions.admin.products.product.name"}}</th>
+        <th>{{i18n "discourse_subscriptions.admin.plans.plan.interval"}}</th>
+        <th>{{i18n "discourse_subscriptions.admin.plans.plan.created_at"}}</th>
+        <th>{{i18n "discourse_subscriptions.admin.plans.plan.group"}}</th>
+        <th>{{i18n "discourse_subscriptions.admin.plans.plan.active"}}</th>
+        <th class="td-right">
+          {{i18n "discourse_subscriptions.admin.plans.plan.amount"}}
+        </th>
+      </thead>
+
+      <tbody>
+        {{#each model as |plan|}}
+          <tr>
+            <td>{{plan.product_name}}</td>
+            <td>{{plan.billingInterval}}</td>
+            <td>{{format-unix-date plan.created}}</td>
+            <td>
+              <PlanGroupSelector
+                @plan={{plan}}
+                @availableGroups={{availableGroups}}
+              />
+            </td>
+            <td>{{plan.active}}</td>
+            <td class="td-right">
+              {{format-currency plan.currency plan.unit_amount}}
+            </td>
+          </tr>
+        {{else}}
+          <tr>
+            <td colspan="8">
+              <hr />
+              {{i18n
+                "discourse_subscriptions.admin.products.product.plan_help"
+              }}
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </p>
+{{else}}
+  <p>
+    {{i18n "discourse_subscriptions.admin.products.product_help"}}
+  </p>
+{{/if}}
