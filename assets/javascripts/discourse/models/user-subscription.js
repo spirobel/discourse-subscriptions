@@ -44,11 +44,12 @@ const UserSubscription = EmberObject.extend({
 
 UserSubscription.reopenClass({
   findAll() {
-    return ajax("/s/user/subscriptions", { method: "get" }).then((result) =>
-      result.map((subscription) => {
-        subscription.plan = Plan.create(subscription.plan);
-        return UserSubscription.create(subscription);
-      })
+    return ajax("/subscriptions/user/subscriptions", { method: "get" }).then(
+      (result) =>
+        result.map((subscription) => {
+          subscription.plan = Plan.create(subscription.plan);
+          return UserSubscription.create(subscription);
+        })
     );
   },
 });

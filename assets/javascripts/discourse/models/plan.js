@@ -1,5 +1,6 @@
 import EmberObject, { computed } from "@ember/object";
 import discourseComputed from "discourse-common/utils/decorators";
+import I18n from "I18n";
 
 const Plan = EmberObject.extend({
   amountDollars: computed("unit_amount", {
@@ -12,9 +13,13 @@ const Plan = EmberObject.extend({
       return value;
     },
   }),
-  @discourseComputed("recurring.interval")
-  billingInterval(interval) {
-    return interval || "one-time";
+  @discourseComputed("recurring.interval", "recurring.interval_count")
+  billingInterval(interval, interval_count) {
+    if (interval_count) {
+      return interval_count + " " + interval;
+    } else {
+      return I18n.t("discourse_subscriptions.one_time_payment");
+    }
   },
 
   @discourseComputed("amountDollars", "currency", "billingInterval")

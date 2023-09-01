@@ -11,10 +11,11 @@ const UserPayment = EmberObject.extend({
 
 UserPayment.reopenClass({
   findAll() {
-    return ajax("/s/user/payments", { method: "get" }).then((result) =>
-      result.map((payment) => {
-        return UserPayment.create(payment);
-      })
+    return ajax("/subscriptions/user/payments", { method: "get" }).then(
+      (result) =>
+        result.map((payment) => {
+          return UserPayment.create(payment);
+        })
     );
   },
 });

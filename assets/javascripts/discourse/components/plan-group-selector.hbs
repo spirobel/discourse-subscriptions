@@ -1,0 +1,19 @@
+<div class="plan-group-selector">
+
+  <ComboBox
+    class="single-group-select"
+    @valueProperty="name"
+    @content={{availableGroups}}
+    @value={{bufferedGroup}}
+    @options={{hash filterable=true clearable=true}}
+    @onChange={{action (mut bufferedGroup)}}
+  />
+
+</div>
+{{#if this.dirty}}
+  <div class="ok-or-cancel">
+    <DButton class="ok" @action={{update}} @icon="check" />
+    <DButton class="cancel" @action={{cancel}} @icon="times" />
+  </div>
+
+{{/if}}

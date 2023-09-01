@@ -28,7 +28,7 @@ export default Controller.extend({
 
   @action
   triggerManualRefresh() {
-    ajax(`/s/admin/refresh`, {
+    ajax(`/subscriptions/admin/refresh`, {
       method: "post",
     }).then(() => {
       this.dialog.alert(
@@ -47,7 +47,7 @@ export default Controller.extend({
       didConfirm: () => {
         this.set("loading", true);
 
-        ajax(`/s/admin/create-campaign`, {
+        ajax(`/subscriptions/admin/create-campaign`, {
           method: "post",
         })
           .then(() => {

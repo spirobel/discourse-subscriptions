@@ -31,6 +31,8 @@ export default Helper.helper(function (params) {
     default:
       currencySign = "$";
   }
-
-  return currencySign + params[1];
+  if (params[1] === undefined) {
+    return "not implemented";
+  }
+  return currencySign + parseFloat(params[1] / 100).toFixed(2);
 });
