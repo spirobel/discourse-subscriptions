@@ -62,6 +62,32 @@ load File.expand_path("app/controllers/concerns/stripe.rb", __dir__)
 load File.expand_path("app/controllers/concerns/group.rb", __dir__)
 
 after_initialize do
+  DiscourseEvent.on(:user_created) do |user|
+    invite = Invite.find_by_email(user.email)
+    unless invite.nil?
+      discourse_customer = ::DiscourseSubscriptions::Customer.find_by_invite_id(invite[:id])
+
+      unless discourse_customer.nil?
+        subscriptions =
+          ::Stripe::Subscription.list(limit: 100, customer: discourse_customer[:customer_id])
+        subscriptions.each do |sub|
+          group = ::Group.find_by_name(sub[:plan][:metadata][:group_name]) unless sub[:plan].nil?
+          group.add(user) unless group.nil?
+          discourse_customer.update(user_id: user.id, invite_id: nil)
+        end
+
+        unless customer.customer_id.start_with?("cus")
+          line_items =
+            ::Stripe::Checkout::Session.list_line_items(customer.customer_id, { limit: 100 })
+          line_items.each do |item|
+            group = plan_group(item[:price]) unless item[:price].nil?
+            group.add(customer.user) unless group.nil?
+          end
+        end
+      end
+    end
+  end
+
   Discourse::Application.routes.append do
     mount ::DiscourseSubscriptions::Engine, at: "subscriptions"
   end
